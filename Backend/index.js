@@ -11,8 +11,20 @@ const io = new Server(server, {
     },
 })
 
+const rooms = new Map()
+
 io.on("connection", (socket) => {
     console.log("User is connected", socket.id)
+
+    let currentRoom = null
+    let currentUser = null
+
+    socket.on("join", ({roomId, userName})=>{
+        if(currentRoom){
+            socket.leave(currentRoom)
+            rooms.get(currentRoom).delete(currentUser)
+        }
+    })
 })
 
 
