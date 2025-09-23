@@ -1,5 +1,6 @@
 import express from 'express'
 import http from 'http'
+import { use } from 'react'
 import { Server } from 'socket.io'  
 
 const app = express()
@@ -23,7 +24,18 @@ io.on("connection", (socket) => {
         if(currentRoom){
             socket.leave(currentRoom)
             rooms.get(currentRoom).delete(currentUser)
+            io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
         }
+
+        currentRoom = roomId
+        currentUser = userName
+
+        socket.join(roomId)
+
+        if(!rooms.has(roomId)){
+            rooms.set(roomId, new Set())
+        }
+        rooms.get(roomId).add(userName)
     })
 })
 
