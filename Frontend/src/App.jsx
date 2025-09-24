@@ -12,7 +12,7 @@ const App = () => {
 
   const joinRoom = () => {
     if(roomId && userName){
-      socket.emit("join", roomId, userName)
+      socket.emit("join", {roomId, userName})
       setJoined(true)
     }
   }
@@ -36,7 +36,7 @@ const App = () => {
       </div>
     </div>
   }
-  return <div>User joined </div>
+  return <div className="editor-container"> </div>
 }
 
 export default App
