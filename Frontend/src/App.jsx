@@ -11,12 +11,21 @@ const App = () => {
   const [userName, setuserName] = useState("")
 
   if (!joined) {
-    return <div className="">
+    return <div className="join-container">
       <div className="join-form">
         <h1>Join Code Room</h1>
         <input type="text"
           placeholder="Room Id"
-          value={roomId} onChange={(e) => setRoomId(e.target.value) } />
+          value={roomId} 
+          onChange={(e) => setRoomId(e.target.value) } 
+          />
+        <input type="text"
+          placeholder="Your Name"
+          value={userName} 
+          onChange={(e) => setuserName(e.target.value) } 
+          />
+
+          <button>Join Room</button>
       </div>
     </div>
   }
