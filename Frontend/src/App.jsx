@@ -10,6 +10,13 @@ const App = () => {
   const [roomId, setRoomId] = useState("")
   const [userName, setuserName] = useState("")
 
+  const joinRoom = () => {
+    if(roomId && userName){
+      socket.emit("join", roomId, userName)
+      setJoined(true)
+    }
+  }
+
   if (!joined) {
     return <div className="join-container">
       <div className="join-form">
@@ -25,7 +32,7 @@ const App = () => {
           onChange={(e) => setuserName(e.target.value) } 
           />
 
-          <button>Join Room</button>
+          <button onClick={joinRoom}>Join Room</button>
       </div>
     </div>
   }

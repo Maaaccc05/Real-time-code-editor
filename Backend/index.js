@@ -25,6 +25,7 @@ io.on("connection", (socket) => {
             socket.leave(currentRoom)
             rooms.get(currentRoom).delete(currentUser)
             io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
+            
         }
 
         currentRoom = roomId
@@ -37,6 +38,7 @@ io.on("connection", (socket) => {
         }
         rooms.get(roomId).add(userName)
         io.to(roomId).emit("userJoined", Array.from(rooms.get(currentRoom)))
+        console.log("user join", roomId)
     })
 })
 
