@@ -11,6 +11,7 @@ const App = () => {
   const [userName, setuserName] = useState("");
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState("")
+  const [copySuccess, setCopySuccess] = useState("")
 
   const joinRoom = () => {
     if (roomId && userName) {
@@ -20,7 +21,9 @@ const App = () => {
   };
 
   const copyRoomId = () => {
-
+    navigator.clipboard.writeText(roomId)
+    setCopySuccess("Code Copied")
+    setTimeout(() => setCopySuccess(""), 3000)
   }
 
   const handleChange = (newCode) => {
@@ -60,6 +63,7 @@ const App = () => {
         <div className="room-info">
           <h2>Room Code: {roomId}</h2>
           <button onClick={copyRoomId} className="copy-button">Copy Code</button>
+          {copySuccess && <span className="copy-success">{copySuccess}</span>}
         </div>
         <h3>Users in Room</h3>
         <ul>
@@ -67,7 +71,11 @@ const App = () => {
           <li>Kam</li>
         </ul>
         <p className="typing-indicator">User Typing...</p>
-        <select className="language-selector">
+        <select 
+          className="language-selector" 
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+        >
           <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
           <option value="java">Java</option>
