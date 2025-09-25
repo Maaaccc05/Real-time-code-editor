@@ -10,6 +10,7 @@ const App = () => {
   const [roomId, setRoomId] = useState("");
   const [userName, setuserName] = useState("");
   const [language, setLanguage] = useState("javascript")
+  const [code, setCode] = useState("")
 
   const joinRoom = () => {
     if (roomId && userName) {
@@ -20,6 +21,10 @@ const App = () => {
 
   const copyRoomId = () => {
 
+  }
+
+  const handleChange = (newCode) => {
+    setCode(newCode)
   }
 
   if (!joined) {
@@ -47,12 +52,14 @@ const App = () => {
       </div>
     );
   }
+  
   return (
+    // Side Bar
     <div className="editor-container">
       <div className="sidebar">
         <div className="room-info">
           <h2>Room Code: {roomId}</h2>
-          <button onClick={copyRoomId}>Copy Code</button>
+          <button onClick={copyRoomId} className="copy-button">Copy Code</button>
         </div>
         <h3>Users in Room</h3>
         <ul>
@@ -68,11 +75,22 @@ const App = () => {
         </select>
         <button className="leave-button">Leave Room</button>
       </div>
+
+     {/* Editor Section */}
       <div className="editor-wrapper">
         <Editor 
         height={"100%"}
         defaultLanguage={language}
         language={language}
+        value={code}
+        onChange={handleChange}
+        theme="vs-dark"
+        options={
+          {
+            minimap: {enabled: false},
+            fontSize: 16,
+          }
+        }
         />
       </div>
     </div>
