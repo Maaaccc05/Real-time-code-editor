@@ -48,7 +48,7 @@ body {
     border: none;
     font-size: 1rem;
     cursor: pointer;
-    transform: background-color 0.3 ease;
+    transition: background-color 0.3 ease;
 
     &:hover {
       background-color: #357abd;
@@ -94,4 +94,58 @@ body {
       background-color: #2980b9;
     }
   }
+}
+
+h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+ul{
+  list-style: none;
+  li {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    background: gray;
+    margin-top: 5px;
+    border-radius: 5px;
+  }
+}
+
+.typing-indicator {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: white;
+}
+
+.language-selector {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #34495e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.leave-button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: .75rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3 ease;
+
+  &:hover {
+    background-color: #a62c1f;
+  }
+}
+
+.editor-wrapper {
+  flex-grow: 1;
+  background-color: #fff;
 }
