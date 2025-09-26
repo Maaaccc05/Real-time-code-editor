@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import "./App.css";
 import { io } from "socket.io-client";
-import Editor from '@monaco-editor/react'
+import Editor from "@monaco-editor/react";
 
 const socket = io("http://localhost:5000");
 
@@ -10,31 +10,36 @@ const App = () => {
   const [joined, setJoined] = useState(false);
   const [roomId, setRoomId] = useState("");
   const [userName, setuserName] = useState("");
-  const [language, setLanguage] = useState("javascript")
-  const [code, setCode] = useState("")
-  const [copySuccess, setCopySuccess] = useState("")
-  const [users, setUsers] = useState([])
-
+  const [language, setLanguage] = useState("javascript");
+  const [code, setCode] = useState("");
+  const [copySuccess, setCopySuccess] = useState("");
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    socket.on("userJoined", (users)=>{
-      setUsers(users)
-    })
+    socket.on("userJoined", (users) => {
+      setUsers(users);
+    });
 
-    useEffect(()=>{
-      
-    })
-
-    socket.on("codeUpdate", (newCode)=>{
-      setCode(newCode)
-    })
+    socket.on("codeUpdate", (newCode) => {
+      setCode(newCode);
+    });
 
     return () => {
-      socket.off("userJoined")
-      socket.off("codeUpdate")
-    }
-  })
+      socket.off("userJoined");
+      socket.off("codeUpdate");
+    };
+  }, []);
   
+  useEffect(() => {
+      const handleBeforeUnload = () => {
+        socket.emit("leaveRoom");
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, []);
 
   const joinRoom = () => {
     if (roomId && userName) {
@@ -44,15 +49,15 @@ const App = () => {
   };
 
   const copyRoomId = () => {
-    navigator.clipboard.writeText(roomId)
-    setCopySuccess("Code Copied")
-    setTimeout(() => setCopySuccess(""), 3000)
-  }
+    navigator.clipboard.writeText(roomId);
+    setCopySuccess("Code Copied");
+    setTimeout(() => setCopySuccess(""), 3000);
+  };
 
   const handleChange = (newCode) => {
-    setCode(newCode)
-    socket.emit("codeChange", {roomId, code: newCode})
-  }
+    setCode(newCode);
+    socket.emit("codeChange", { roomId, code: newCode });
+  };
 
   if (!joined) {
     return (
@@ -79,25 +84,27 @@ const App = () => {
       </div>
     );
   }
-  
+
   return (
     // Side Bar
     <div className="editor-container">
       <div className="sidebar">
         <div className="room-info">
           <h2>Room Code: {roomId}</h2>
-          <button onClick={copyRoomId} className="copy-button">Copy Code</button>
+          <button onClick={copyRoomId} className="copy-button">
+            Copy Code
+          </button>
           {copySuccess && <span className="copy-success">{copySuccess}</span>}
         </div>
         <h3>Users in Room</h3>
         <ul>
-          {users.map((user,index) =>(
-            <li key={index}>{user.slice(0,8)}...</li>
+          {users.map((user, index) => (
+            <li key={index}>{user.slice(0, 8)}...</li>
           ))}
         </ul>
         <p className="typing-indicator">User Typing...</p>
-        <select 
-          className="language-selector" 
+        <select
+          className="language-selector"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
         >
@@ -109,21 +116,19 @@ const App = () => {
         <button className="leave-button">Leave Room</button>
       </div>
 
-     {/* Editor Section */}
+      {/* Editor Section */}
       <div className="editor-wrapper">
-        <Editor 
-        height={"100%"}
-        defaultLanguage={language}
-        language={language}
-        value={code}
-        onChange={handleChange}
-        theme="vs-dark"
-        options={
-          {
-            minimap: {enabled: false},
+        <Editor
+          height={"100%"}
+          defaultLanguage={language}
+          language={language}
+          value={code}
+          onChange={handleChange}
+          theme="vs-dark"
+          options={{
+            minimap: { enabled: false },
             fontSize: 16,
-          }
-        }
+          }}
         />
       </div>
     </div>

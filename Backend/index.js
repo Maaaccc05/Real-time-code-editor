@@ -44,12 +44,23 @@ io.on("connection", (socket) => {
         socket.to(roomId).emit("codeUpdate", code)
     })
 
+    socket.on("leaveRoom", () =>{
+        if(currentRoom && currentUser){
+            rooms.get(currentRoom).delete(currentUser)
+            io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
+
+            socket.leave(currentRoom)
+            currentRoom=null
+            currentUser=null
+        }
+    })
+
     socket.on("disconnect", ()=>{
         if(currentRoom && currentUser){
             rooms.get(currentRoom).delete(currentUser)
             io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
         }
-        console.log({user}, "disconnected")
+        console.log("User disconnected")
     })
 })
 
