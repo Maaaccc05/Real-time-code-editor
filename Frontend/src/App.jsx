@@ -21,8 +21,17 @@ const App = () => {
       setUsers(users)
     })
 
+    useEffect(()=>{
+      
+    })
+
+    socket.on("codeUpdate", (newCode)=>{
+      setCode(newCode)
+    })
+
     return () => {
       socket.off("userJoined")
+      socket.off("codeUpdate")
     }
   })
   
