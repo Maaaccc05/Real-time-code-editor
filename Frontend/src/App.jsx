@@ -13,6 +13,12 @@ const App = () => {
   const [code, setCode] = useState("")
   const [copySuccess, setCopySuccess] = useState("")
 
+
+  useEffect(() => {
+    socket.on("userJoined")
+  })
+  
+
   const joinRoom = () => {
     if (roomId && userName) {
       socket.emit("join", { roomId, userName });
@@ -28,6 +34,7 @@ const App = () => {
 
   const handleChange = (newCode) => {
     setCode(newCode)
+    socket.emit("codeChange", {roomId, code: newCode})
   }
 
   if (!joined) {
