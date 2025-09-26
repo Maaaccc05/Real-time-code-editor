@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { io } from "socket.io-client";
 import Editor from '@monaco-editor/react'
@@ -12,10 +13,17 @@ const App = () => {
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState("")
   const [copySuccess, setCopySuccess] = useState("")
+  const [users, setUsers] = useState([])
 
 
   useEffect(() => {
-    socket.on("userJoined")
+    socket.on("userJoined", (users)=>{
+      setUsers(users)
+    })
+
+    return () => {
+      socket.off("userJoined")
+    }
   })
   
 
@@ -74,8 +82,9 @@ const App = () => {
         </div>
         <h3>Users in Room</h3>
         <ul>
-          <li>Mac</li>
-          <li>Kam</li>
+          {users.map((user,index) =>(
+            <li key={index}>{user.slice(0,8)}...</li>
+          ))}
         </ul>
         <p className="typing-indicator">User Typing...</p>
         <select 
