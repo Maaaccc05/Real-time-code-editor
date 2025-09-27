@@ -14,6 +14,7 @@ const App = () => {
   const [code, setCode] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
   const [users, setUsers] = useState([]);
+  const [typing, setTyping] = useState("")
 
   useEffect(() => {
     socket.on("userJoined", (users) => {
@@ -23,6 +24,11 @@ const App = () => {
     socket.on("codeUpdate", (newCode) => {
       setCode(newCode);
     });
+
+    socket.on("userTyping", (user)=> {
+      setTyping(`${user.slice(0,8)}is typing...`)
+      setTimeout(() => setTyping(""), 2000)
+    })
 
     return () => {
       socket.off("userJoined");
@@ -57,6 +63,7 @@ const App = () => {
   const handleChange = (newCode) => {
     setCode(newCode);
     socket.emit("codeChange", { roomId, code: newCode });
+    socket.emit("typing", {roomId, userName})
   };
 
   if (!joined) {
