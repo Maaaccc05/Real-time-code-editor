@@ -26,13 +26,14 @@ const App = () => {
     });
 
     socket.on("userTyping", (user)=> {
-      setTyping(`${user.slice(0,8)}is typing...`)
+      setTyping(`${user.slice(0,8)}...is typing`)
       setTimeout(() => setTyping(""), 2000)
     })
 
     return () => {
       socket.off("userJoined");
       socket.off("codeUpdate");
+      socket.off("userTyping")
     };
   }, []);
   
@@ -109,7 +110,7 @@ const App = () => {
             <li key={index}>{user.slice(0, 8)}...</li>
           ))}
         </ul>
-        <p className="typing-indicator">User Typing...</p>
+        <p className="typing-indicator">{typing}</p>
         <select
           className="language-selector"
           value={language}
