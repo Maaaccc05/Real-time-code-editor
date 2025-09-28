@@ -11,7 +11,7 @@ const App = () => {
   const [roomId, setRoomId] = useState("");
   const [userName, setuserName] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState("// Bored? So built Your code here");
   const [copySuccess, setCopySuccess] = useState("");
   const [users, setUsers] = useState([]);
   const [typing, setTyping] = useState("")
@@ -59,6 +59,15 @@ const App = () => {
       setJoined(true);
     }
   };
+  
+  const leaveRoom = () => {
+    socket.emit("leaveRoom")
+    setJoined(false)
+    setRoomId("")
+    setuserName("")
+    setCode("// Bored? So built Your code here")
+    setLanguage("javascript")
+  }
 
   const copyRoomId = () => {
     navigator.clipboard.writeText(roomId);
@@ -131,8 +140,10 @@ const App = () => {
           <option value="python">Python</option>
           <option value="java">Java</option>
           <option value="cpp">C++</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
         </select>
-        <button className="leave-button">Leave Room</button>
+        <button className="leave-button" onClick={leaveRoom}>Leave Room</button>
       </div>
 
       {/* Editor Section */}

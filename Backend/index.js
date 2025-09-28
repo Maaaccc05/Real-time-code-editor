@@ -25,7 +25,9 @@ io.on("connection", (socket) => {
     if (currentRoom) {
       socket.leave(currentRoom);
       rooms.get(currentRoom).delete(currentUser);
-      io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+      if (rooms.has(currentRoom) && rooms.get(currentRoom).size > 0) {
+        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+      }
     }
 
     currentRoom = roomId;
@@ -35,24 +37,21 @@ io.on("connection", (socket) => {
 
     if (!rooms.has(roomId)) {
       rooms.set(roomId, new Set());
-      // Initialize room data with empty code and default language
       roomData.set(roomId, { code: "", language: "javascript" });
     }
     rooms.get(roomId).add(userName);
     
-    // Send current room state to the newly joined user (with small delay to ensure frontend is ready)
     const currentRoomData = roomData.get(roomId);
     console.log(`Sending current state to ${userName}: code length = ${currentRoomData.code.length}, language = ${currentRoomData.language}`);
     setTimeout(() => {
       socket.emit("codeUpdate", currentRoomData.code);
       socket.emit("languageUpdate", currentRoomData.language);
     }, 100);
-    
-    io.to(roomId).emit("userJoined", Array.from(rooms.get(currentRoom)));
+  
+    io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId)));
   });
 
   socket.on("codeChange", ({ roomId, code }) => {
-    // Update room data with new code
     if (roomData.has(roomId)) {
       roomData.get(roomId).code = code;
       console.log(`Code updated for room ${roomId}: length = ${code.length}`);
@@ -64,12 +63,13 @@ io.on("connection", (socket) => {
     if (currentRoom && currentUser) {
       rooms.get(currentRoom).delete(currentUser);
       
-      // Clean up room data if no users left
       if (rooms.get(currentRoom).size === 0) {
         rooms.delete(currentRoom);
         roomData.delete(currentRoom);
       } else {
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        if (rooms.has(currentRoom)) {
+          io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        }
       }
 
       socket.leave(currentRoom);
@@ -83,7 +83,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("languageChange", ({ roomId, language }) => {
-    // Update room data with new language
     if (roomData.has(roomId)) {
       roomData.get(roomId).language = language;
     }
@@ -93,13 +92,13 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     if (currentRoom && currentUser) {
       rooms.get(currentRoom).delete(currentUser);
-      
-      // Clean up room data if no users left
       if (rooms.get(currentRoom).size === 0) {
         rooms.delete(currentRoom);
         roomData.delete(currentRoom);
       } else {
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        if (rooms.has(currentRoom)) {
+          io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        }
       }
     }
     console.log("User disconnected");
