@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("languageChange", ({ roomId, language }) => {
-    io.to(roomId).emit("languageUpdate", language);
+    socket.to(roomId).emit("languageUpdate", language);
   });
 
   socket.on("disconnect", () => {
