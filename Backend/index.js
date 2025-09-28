@@ -1,76 +1,77 @@
-import express from 'express'
-import http from 'http'
-import { use } from 'react'
-import { Server } from 'socket.io'  
+import express from "express";
+import http from "http";
+import { use } from "react";
+import { Server } from "socket.io";
 
-const app = express()
-const server = http.createServer(app)
+const app = express();
+const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-    },
-})
+  cors: {
+    origin: "*",
+  },
+});
 
-const rooms = new Map()
+const rooms = new Map();
 
 io.on("connection", (socket) => {
-    console.log("User is connected", socket.id)
+  console.log("User is connected", socket.id);
 
-    let currentRoom = null
-    let currentUser = null
+  let currentRoom = null;
+  let currentUser = null;
 
-    socket.on("join", ({roomId, userName})=>{
-        if(currentRoom){
-            socket.leave(currentRoom)
-            rooms.get(currentRoom).delete(currentUser)
-            io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
-            
-        }
+  socket.on("join", ({ roomId, userName }) => {
+    if (currentRoom) {
+      socket.leave(currentRoom);
+      rooms.get(currentRoom).delete(currentUser);
+      io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+    }
 
-        currentRoom = roomId
-        currentUser = userName
+    currentRoom = roomId;
+    currentUser = userName;
 
-        socket.join(roomId)
+    socket.join(roomId);
 
-        if(!rooms.has(roomId)){
-            rooms.set(roomId, new Set())
-        }
-        rooms.get(roomId).add(userName)
-        io.to(roomId).emit("userJoined", Array.from(rooms.get(currentRoom)))
-    })
+    if (!rooms.has(roomId)) {
+      rooms.set(roomId, new Set());
+    }
+    rooms.get(roomId).add(userName);
+    io.to(roomId).emit("userJoined", Array.from(rooms.get(currentRoom)));
+  });
 
-    socket.on("codeChange", ({roomId, code}) => {
-        socket.to(roomId).emit("codeUpdate", code)
-    })
+  socket.on("codeChange", ({ roomId, code }) => {
+    socket.to(roomId).emit("codeUpdate", code);
+  });
 
-    socket.on("leaveRoom", () =>{
-        if(currentRoom && currentUser){
-            rooms.get(currentRoom).delete(currentUser)
-            io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
+  socket.on("leaveRoom", () => {
+    if (currentRoom && currentUser) {
+      rooms.get(currentRoom).delete(currentUser);
+      io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
 
-            socket.leave(currentRoom)
-            currentRoom=null
-            currentUser=null
-        }
-    })
+      socket.leave(currentRoom);
+      currentRoom = null;
+      currentUser = null;
+    }
+  });
 
-    socket.on("typing", ({roomId, userName}) => {
-        socket.to(roomId).emit("userTyping", userName)
-    })
+  socket.on("typing", ({ roomId, userName }) => {
+    socket.to(roomId).emit("userTyping", userName);
+  });
 
-    socket.on("disconnect", ()=>{
-        if(currentRoom && currentUser){
-            rooms.get(currentRoom).delete(currentUser)
-            io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)))
-        }
-        console.log("User disconnected")
-    })
-})
+  socket.on("languageChange", ({ roomId, language }) => {
+    io.to(roomId).emit("languageUpdate", language);
+  });
 
+  socket.on("disconnect", () => {
+    if (currentRoom && currentUser) {
+      rooms.get(currentRoom).delete(currentUser);
+      io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+    }
+    console.log("User disconnected");
+  });
+});
 
-
-const port = process.env.PORT || 5000
-server.listen(port, () =>{
-    console.log("Server is running on Port 5000")
-})
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log("Server is running on Port 5000");
+});
