@@ -154,3 +154,17 @@ ul{
   flex-grow: 1;
   background-color: #fff;
 }
+
+.run-btn {
+  background-color: rgb(7, 209, 34);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.output-console {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 20px;
+  height: 200px;
+}

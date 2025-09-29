@@ -2,7 +2,6 @@ import axios from "axios";
 import express from "express";
 import http from "http";
 import { version } from "os";
-import { use } from "react";
 import { Server } from "socket.io";
 
 const app = express();
@@ -28,7 +27,10 @@ io.on("connection", (socket) => {
       socket.leave(currentRoom);
       rooms.get(currentRoom).delete(currentUser);
       if (rooms.has(currentRoom) && rooms.get(currentRoom).size > 0) {
-        io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+        io.to(currentRoom).emit(
+          "userJoined",
+          Array.from(rooms.get(currentRoom))
+        );
       }
     }
 
@@ -42,14 +44,16 @@ io.on("connection", (socket) => {
       roomData.set(roomId, { code: "", language: "javascript" });
     }
     rooms.get(roomId).add(userName);
-    
+
     const currentRoomData = roomData.get(roomId);
-    console.log(`Sending current state to ${userName}: code length = ${currentRoomData.code.length}, language = ${currentRoomData.language}`);
+    console.log(
+      `Sending current state to ${userName}: code length = ${currentRoomData.code.length}, language = ${currentRoomData.language}`
+    );
     setTimeout(() => {
       socket.emit("codeUpdate", currentRoomData.code);
       socket.emit("languageUpdate", currentRoomData.language);
     }, 100);
-  
+
     io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId)));
   });
 
@@ -64,13 +68,16 @@ io.on("connection", (socket) => {
   socket.on("leaveRoom", () => {
     if (currentRoom && currentUser) {
       rooms.get(currentRoom).delete(currentUser);
-      
+
       if (rooms.get(currentRoom).size === 0) {
         rooms.delete(currentRoom);
         roomData.delete(currentRoom);
       } else {
         if (rooms.has(currentRoom)) {
-          io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+          io.to(currentRoom).emit(
+            "userJoined",
+            Array.from(rooms.get(currentRoom))
+          );
         }
       }
 
@@ -91,22 +98,25 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("languageUpdate", language);
   });
 
-  socket.on("compileCode", async({code, roomId, language, version}) => {
-    if(rooms.has(roomId)){
-      const room = rooms.get(roomId)
-      const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-        language,
-        version,
-        files: [
-          {
-          content: code
-          } 
-        ]
-      })
-      room.output = response.data.run.output
-      socket.to(roomId).emit("codeResponse", response)
+  socket.on("compileCode", async ({ code, roomId, language, version }) => {
+    if (rooms.has(roomId)) {
+      const room = rooms.get(roomId);
+      const response = await axios.post(
+        "https://emkc.org/api/v2/piston/execute",
+        {
+          language,
+          version,
+          files: [
+            {
+              content: code,
+            },
+          ],
+        }
+      );
+      room.output = response.data.run.output;
+      io.to(roomId).emit("codeResponse", response.data);
     }
-  })
+  });
 
   socket.on("disconnect", () => {
     if (currentRoom && currentUser) {
@@ -116,7 +126,10 @@ io.on("connection", (socket) => {
         roomData.delete(currentRoom);
       } else {
         if (rooms.has(currentRoom)) {
-          io.to(currentRoom).emit("userJoined", Array.from(rooms.get(currentRoom)));
+          io.to(currentRoom).emit(
+            "userJoined",
+            Array.from(rooms.get(currentRoom))
+          );
         }
       }
     }
