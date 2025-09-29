@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
-const url = `https://realtime-code-editor-final.onrender.com`;
+const url = ``;
 const interval = 30000;
 
 function reloadWebsite() {
