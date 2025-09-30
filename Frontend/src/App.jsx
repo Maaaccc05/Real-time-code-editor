@@ -4,7 +4,7 @@ import "./App.css";
 import { io } from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
-const socket = io("https://real-time-code-editor-crfo.onrender.com");
+const socket = io("http://localhost:5000");
 
 const App = () => {
   const [joined, setJoined] = useState(false);

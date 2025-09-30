@@ -3,25 +3,24 @@ import express from "express";
 import http from "http";
 import { version } from "os";
 import { Server } from "socket.io";
+import path  from "path";
 
 const app = express();
 const server = http.createServer(app);
 
-const url = `https://real-time-code-editor-crfo.onrender.com`;
-const interval = 30000;
+// const interval = 30000;
+// function reloadWebsite() {
+//   axios
+//     .get(url)
+//     .then((response) => {
+//       console.log("website reloded");
+//     })
+//     .catch((error) => {
+//       console.error(`Error : ${error.message}`);
+//     });
+// }
 
-function reloadWebsite() {
-  axios
-    .get(url)
-    .then((response) => {
-      console.log("website reloded");
-    })
-    .catch((error) => {
-      console.error(`Error : ${error.message}`);
-    });
-}
-
-setInterval(reloadWebsite, interval);
+// setInterval(reloadWebsite, interval);
 
 const io = new Server(server, {
   cors: {
@@ -154,6 +153,16 @@ io.on("connection", (socket) => {
 });
 
 const port = process.env.PORT || 5000;
+
+const __dirname = path.resolve()
+
+app.use(express.static(path.join(__dirname, "/frontend/dist")))
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
+
+
 server.listen(port, () => {
   console.log("Server is running on Port 5000");
 });
