@@ -24,7 +24,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "http://localhost:5000", "https://*.vercel.app", "https://*.render.com"],
+    methods: ["GET", "POST"],
+    credentials: true
   },
 });
 
@@ -62,13 +64,14 @@ io.on("connection", (socket) => {
 
     const currentRoomData = roomData.get(roomId);
     console.log(
-      `Sending current state to ${userName}: code length = ${currentRoomData.code.length}, language = ${currentRoomData.language}`
+      `User ${userName} joined room ${roomId}. Sending current state: code length = ${currentRoomData.code.length}, language = ${currentRoomData.language}`
     );
-    setTimeout(() => {
-      socket.emit("codeUpdate", currentRoomData.code);
-      socket.emit("languageUpdate", currentRoomData.language);
-    }, 100);
-
+    
+    // Send current state immediately to the joining user
+    socket.emit("codeUpdate", currentRoomData.code);
+    socket.emit("languageUpdate", currentRoomData.language);
+    
+    // Broadcast updated user list to all users in the room
     io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId)));
   });
 

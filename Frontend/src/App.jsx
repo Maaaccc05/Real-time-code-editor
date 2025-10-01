@@ -4,19 +4,47 @@ import "./App.css";
 import { io } from "socket.io-client";
 import Editor from "@monaco-editor/react";
 
-const socket = io("http://localhost:5000");
-
+const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5000");
 const App = () => {
-  const [joined, setJoined] = useState(false);
-  const [roomId, setRoomId] = useState("");
-  const [userName, setuserName] = useState("");
-  const [language, setLanguage] = useState("javascript");
-  const [code, setCode] = useState("// Bored? So built Your code here");
+  // Initialize state from localStorage if available
+  const getStoredState = () => {
+    try {
+      const stored = localStorage.getItem('codeEditorState');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const storedState = getStoredState();
+  
+  const [joined, setJoined] = useState(storedState?.joined || false);
+  const [roomId, setRoomId] = useState(storedState?.roomId || "");
+  const [userName, setuserName] = useState(storedState?.userName || "");
+  const [language, setLanguage] = useState(storedState?.language || "javascript");
+  const [code, setCode] = useState(storedState?.code || "// Bored? So built Your code here");
   const [copySuccess, setCopySuccess] = useState("");
   const [users, setUsers] = useState([]);
   const [typing, setTyping] = useState("")
   const [outPut, setOutPut] = useState("")
   const [version, setVersion] = useState("*")
+
+  // Save state to localStorage whenever important state changes
+  const saveState = () => {
+    const stateToSave = {
+      joined,
+      roomId,
+      userName,
+      language,
+      code
+    };
+    localStorage.setItem('codeEditorState', JSON.stringify(stateToSave));
+  };
+
+  // Clear state from localStorage
+  const clearState = () => {
+    localStorage.removeItem('codeEditorState');
+  };
 
   useEffect(() => {
     socket.on("userJoined", (users) => {
@@ -49,6 +77,22 @@ const App = () => {
     };
   }, []);
   
+  // Auto-rejoin room on page load if user was previously in a room
+  useEffect(() => {
+    if (storedState && storedState.joined && storedState.roomId && storedState.userName) {
+      console.log('Auto-rejoining room:', storedState.roomId);
+      socket.emit("join", { roomId: storedState.roomId, userName: storedState.userName });
+      setJoined(true);
+    }
+  }, []);
+  
+  // Save state whenever important values change
+  useEffect(() => {
+    if (joined) {
+      saveState();
+    }
+  }, [joined, roomId, userName, language, code]);
+  
   useEffect(() => {
       const handleBeforeUnload = () => {
         socket.emit("leaveRoom");
@@ -74,6 +118,7 @@ const App = () => {
     setuserName("")
     setCode("// Bored? So built Your code here")
     setLanguage("javascript")
+    clearState() // Clear localStorage when leaving room
   }
 
   const copyRoomId = () => {
