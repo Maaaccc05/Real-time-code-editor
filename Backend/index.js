@@ -24,7 +24,15 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "http://localhost:5000", "https://*.vercel.app", "https://*.render.com"],
+    origin: [
+      "http://localhost:5173", 
+      "http://localhost:5174", 
+      "http://localhost:3000", 
+      "http://localhost:5000", 
+      "https://*.vercel.app", 
+      "https://*.render.com",
+      "https://real-time-code-editor-bay.vercel.app"
+    ],
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -159,13 +167,14 @@ const port = process.env.PORT || 5000;
 
 const __dirname = path.resolve()
 
+// Serve static files
 app.use(express.static(path.join(__dirname, "/frontend/dist")))
 
-app.get(/.*/, (req, res) => {
+// Handle all other routes
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
-
 server.listen(port, () => {
-  console.log("Server is running on Port 5000");
+  console.log(`Server is running on Port ${port}`);
 });
