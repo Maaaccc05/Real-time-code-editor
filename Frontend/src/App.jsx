@@ -29,7 +29,6 @@ const App = () => {
   const [outPut, setOutPut] = useState("")
   const [version, setVersion] = useState("*")
 
-  // Save state to localStorage whenever important state changes
   const saveState = () => {
     const stateToSave = {
       joined,
@@ -118,7 +117,7 @@ const App = () => {
     setuserName("")
     setCode("// Bored? So built Your code here")
     setLanguage("javascript")
-    clearState() // Clear localStorage when leaving room
+    clearState() 
   }
 
   const copyRoomId = () => {
